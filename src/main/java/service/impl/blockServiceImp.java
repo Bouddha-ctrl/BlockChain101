@@ -8,7 +8,7 @@ import java.security.MessageDigest;
 
 
 public class blockServiceImp implements blockService {
-    @Override
+   /* @Override
     public Block calculateBlockHash(Block block) {
 
         String dataToHash = block.getPrevHash() + block.getData() + block.getNonce();
@@ -40,5 +40,5 @@ public class blockServiceImp implements blockService {
             block = calculateBlockHash(block) ;
         }
         return block;
-    }
+    }*/
 }
