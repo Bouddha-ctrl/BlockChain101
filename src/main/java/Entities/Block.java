@@ -1,29 +1,37 @@
 package Entities;
 
 
-import java.lang.reflect.Field;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.Arrays;
 
-public class Block {
+public class Block implements PropertyChangeListener{
     private String hash;
     private Block prevBlock;
     private String data;
     private int nonce;
     private final int prefix = 4;
+    
+    private PropertyChangeSupport support;
+
 
 
     public Block(Block prevBlock, String data ){
+    	support = new PropertyChangeSupport(this);
         this.data = data;
         this.prevBlock = prevBlock;
         this.nonce = 0;
+        
+        this.prevBlock.support.addPropertyChangeListener(this);
         this.calculateBlockHash();
         this.mineBlock();
         //save state
     }
 
     public Block(){
+    	support = new PropertyChangeSupport(this);
         this.hash = "0".repeat(64);
         this.prevBlock = null;
     }
@@ -45,11 +53,14 @@ public class Block {
         return nonce;
     }
 
-
+    private void fireChange() {
+        support.firePropertyChange("data", this.data, "what");
+    }
+    
     public void setData(String data) {
         this.data = data;
         this.calculateBlockHash();
-        //set state
+        fireChange();
     }
 
     @Override
@@ -104,20 +115,13 @@ public class Block {
             this.nonce++;
             calculateBlockHash() ;
         }
+        this.fireChange();
     }
-/*
-    public  void update(){
-        Class<?> blockClass = this.getClass();
-        Field[] declaredFields = blockClass.getDeclaredFields();
 
-        Arrays.stream(declaredFields).forEach(e->{
-            e.setAccessible(true);
-            //call state != save stat
-            //maj
-            //java reflexi
-        });
-
-    }
-    */
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		calculateBlockHash();
+		fireChange();
+	}
 
 }
